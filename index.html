@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IHS4 Score Calculator</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#8B0000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="IHS4 Score Calculator">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0;
+      display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .container { background: #8B0000; color: white; padding: 20px 25px; border-radius: 10px;
+      max-width: 350px; box-shadow: 0px 4px 10px rgba(0,0,0,0.25); }
+    h1 { text-align: center; font-size: 20px; margin-bottom: 15px; }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input[type="number"] { width: 100%; padding: 8px; margin-top: 5px; border: none; border-radius: 5px; }
+    button { background: #FFD700; color: #000; border: none; padding: 10px; width: 100%;
+      margin-top: 15px; font-size: 16px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #e6c200; }
+    .result { margin-top: 15px; text-align: center; font-size: 18px; font-weight: bold; }
+    .mild { color: #90ee90; } .moderate { color: #ffd700; } .severe { color: #ff6347; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>IHS4 Severity Calculator</h1>
+    <label for="nodules">Number of Nodules:</label>
+    <input type="number" id="nodules" min="0" value="0">
+    <label for="abscesses">Number of Abscesses:</label>
+    <input type="number" id="abscesses" min="0" value="0">
+    <label for="tunnels">Number of Draining Tunnels:</label>
+    <input type="number" id="tunnels" min="0" value="0">
+    <button onclick="calculateIHS4()">Calculate IHS4 Score</button>
+    <div id="result" class="result"></div>
+  </div>
+  <script>
+    function calculateIHS4() {
+      const nodules = parseInt(document.getElementById('nodules').value) || 0;
+      const abscesses = parseInt(document.getElementById('abscesses').value) || 0;
+      const tunnels = parseInt(document.getElementById('tunnels').value) || 0;
+      const score = (nodules * 1) + (abscesses * 2) + (tunnels * 4);
+      let severityClass = '', severityText = '';
+      if (score <= 3) { severityClass = 'mild'; severityText = 'Mild HS'; }
+      else if (score >= 4 && score <= 10) { severityClass = 'moderate'; severityText = 'Moderate HS'; }
+      else { severityClass = 'severe'; severityText = 'Severe HS'; }
+      document.getElementById('result').innerHTML =
+        `IHS4 Score: <strong>${score}</strong><br><span class="${severityClass}">${severityText}</span>`;
+    }
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('service-worker.js'); }
+  </script>
+</body>
+</html>
