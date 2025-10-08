@@ -1,56 +1,290 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IHS4 Score Calculator</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#8B0000">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="IHS4 Score Calculator">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <style>
-    body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 0; padding: 0;
-      display: flex; justify-content: center; align-items: center; height: 100vh; }
-    .container { background: #8B0000; color: white; padding: 20px 25px; border-radius: 10px;
-      max-width: 350px; box-shadow: 0px 4px 10px rgba(0,0,0,0.25); }
-    h1 { text-align: center; font-size: 20px; margin-bottom: 15px; }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input[type="number"] { width: 100%; padding: 8px; margin-top: 5px; border: none; border-radius: 5px; }
-    button { background: #FFD700; color: #000; border: none; padding: 10px; width: 100%;
-      margin-top: 15px; font-size: 16px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-    button:hover { background: #e6c200; }
-    .result { margin-top: 15px; text-align: center; font-size: 18px; font-weight: bold; }
-    .mild { color: #90ee90; } .moderate { color: #ffd700; } .severe { color: #ff6347; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>IHS4 Severity Calculator</h1>
-    <label for="nodules">Number of Nodules:</label>
-    <input type="number" id="nodules" min="0" value="0">
-    <label for="abscesses">Number of Abscesses:</label>
-    <input type="number" id="abscesses" min="0" value="0">
-    <label for="tunnels">Number of Draining Tunnels:</label>
-    <input type="number" id="tunnels" min="0" value="0">
-    <button onclick="calculateIHS4()">Calculate IHS4 Score</button>
-    <div id="result" class="result"></div>
-  </div>
-  <script>
-    function calculateIHS4() {
-      const nodules = parseInt(document.getElementById('nodules').value) || 0;
-      const abscesses = parseInt(document.getElementById('abscesses').value) || 0;
-      const tunnels = parseInt(document.getElementById('tunnels').value) || 0;
-      const score = (nodules * 1) + (abscesses * 2) + (tunnels * 4);
-      let severityClass = '', severityText = '';
-      if (score <= 3) { severityClass = 'mild'; severityText = 'Mild HS'; }
-      else if (score >= 4 && score <= 10) { severityClass = 'moderate'; severityText = 'Moderate HS'; }
-      else { severityClass = 'severe'; severityText = 'Severe HS'; }
-      document.getElementById('result').innerHTML =
-        `IHS4 Score: <strong>${score}</strong><br><span class="${severityClass}">${severityText}</span>`;
-    }
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('service-worker.js'); }
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IHS4 Score Calculator</title>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#8B0000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="IHS4 Score Calculator" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
+          sans-serif;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        margin: 0;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        /* For better mobile viewport handling */
+        min-height: -webkit-fill-available;
+      }
+      html {
+        height: -webkit-fill-available;
+      }
+      .container {
+        background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+        color: #2c3e50;
+        padding: 25px 20px;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.4);
+      }
+      h1 {
+        text-align: center;
+        font-size: 22px;
+        margin: 0 0 20px 0;
+        line-height: 1.3;
+        color: #1e3c72;
+        font-weight: bold;
+      }
+      label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 6px;
+      }
+      input[type="number"] {
+        width: 100%;
+        padding: 14px 12px;
+        margin-top: 0;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 16px; /* Prevents zoom on iOS */
+        -webkit-appearance: none;
+        appearance: none;
+        background: #ffffff;
+        color: #2c3e50;
+        transition: border-color 0.3s ease;
+      }
+      /* Better mobile input styling */
+      input[type="number"]:focus {
+        outline: none;
+        border-color: #2a5298;
+        box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+      }
+      button {
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 100%);
+        color: #ffffff;
+        border: none;
+        padding: 16px;
+        width: 100%;
+        margin-top: 20px;
+        font-size: 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        touch-action: manipulation; /* Prevents double-tap zoom */
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+        box-shadow: 0px 4px 15px rgba(42, 82, 152, 0.3);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      button:active {
+        transform: scale(0.98);
+        box-shadow: 0px 2px 8px rgba(42, 82, 152, 0.4);
+      }
+      .result {
+        margin-top: 20px;
+        padding: 15px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        border-radius: 8px;
+        background: #2c3e50;
+        color: #ffffff;
+        min-height: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
+      }
+      .mild {
+        color: #ffd700;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+      }
+      .moderate {
+        color: #7fff7f;
+        text-shadow: 0 0 10px rgba(127, 255, 127, 0.5);
+      }
+      .severe {
+        color: #ff4757;
+        text-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+      }
+      .info-table {
+        margin-top: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        color: #333;
+        border: 2px solid #e9ecef;
+      }
+      .info-table h2 {
+        font-size: 16px;
+        margin: 0 0 12px 0;
+        text-align: center;
+        color: #2c3e50;
+        font-weight: bold;
+      }
+      .info-table table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .info-table td {
+        padding: 8px;
+        font-size: 14px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .info-table tr:last-child td {
+        border-bottom: none;
+      }
+      .info-table td:first-child {
+        font-weight: bold;
+        width: 45%;
+      }
+      .info-table .color-indicator {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        margin-right: 8px;
+        vertical-align: middle;
+      }
+
+      /* Mobile-specific adjustments */
+      @media (max-width: 480px) {
+        body {
+          padding: 15px;
+        }
+        .container {
+          padding: 20px 18px;
+        }
+        h1 {
+          font-size: 20px;
+        }
+      }
+
+      /* Landscape mobile adjustments */
+      @media (max-height: 600px) and (orientation: landscape) {
+        body {
+          min-height: auto;
+          padding: 10px;
+        }
+        .container {
+          padding: 15px;
+        }
+        h1 {
+          font-size: 18px;
+          margin-bottom: 12px;
+        }
+        label {
+          margin-top: 10px;
+        }
+        button {
+          margin-top: 15px;
+          padding: 12px;
+        }
+        .result {
+          margin-top: 15px;
+          min-height: 50px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>IHS4 Severity Calculator</h1>
+      <label for="nodules">Number of Nodules:</label>
+      <input type="number" id="nodules" min="0" value="0" />
+      <label for="abscesses">Number of Abscesses:</label>
+      <input type="number" id="abscesses" min="0" value="0" />
+      <label for="tunnels">Number of Draining Tunnels:</label>
+      <input type="number" id="tunnels" min="0" value="0" />
+      <button onclick="calculateIHS4()">Calculate IHS4 Score</button>
+      <div id="result" class="result"></div>
+      <div class="info-table">
+        <h2>Score Interpretation</h2>
+        <table>
+          <tr>
+            <td>
+              <span
+                class="color-indicator"
+                style="
+                  background: #ffd700;
+                  box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+                "
+              ></span
+              >Mild HS
+            </td>
+            <td>≤ 3 points</td>
+          </tr>
+          <tr>
+            <td>
+              <span
+                class="color-indicator"
+                style="
+                  background: #7fff7f;
+                  box-shadow: 0 0 5px rgba(127, 255, 127, 0.5);
+                "
+              ></span
+              >Moderate HS
+            </td>
+            <td>4-10 points</td>
+          </tr>
+          <tr>
+            <td>
+              <span
+                class="color-indicator"
+                style="
+                  background: #ff4757;
+                  box-shadow: 0 0 5px rgba(255, 71, 87, 0.5);
+                "
+              ></span
+              >Severe HS
+            </td>
+            <td>≥ 11 points</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <script>
+      function calculateIHS4() {
+        const nodules = parseInt(document.getElementById("nodules").value) || 0;
+        const abscesses =
+          parseInt(document.getElementById("abscesses").value) || 0;
+        const tunnels = parseInt(document.getElementById("tunnels").value) || 0;
+        const score = nodules * 1 + abscesses * 2 + tunnels * 4;
+        let severityClass = "",
+          severityText = "";
+        if (score <= 3) {
+          severityClass = "mild";
+          severityText = "Mild HS";
+        } else if (score >= 4 && score <= 10) {
+          severityClass = "moderate";
+          severityText = "Moderate HS";
+        } else {
+          severityClass = "severe";
+          severityText = "Severe HS";
+        }
+        document.getElementById(
+          "result"
+        ).innerHTML = `IHS4 Score: <strong>${score}</strong><br><span class="${severityClass}">${severityText}</span>`;
+      }
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("service-worker.js");
+      }
+    </script>
+  </body>
 </html>
